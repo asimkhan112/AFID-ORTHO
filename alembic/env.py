@@ -82,6 +82,15 @@ def run_migrations_online() -> None:
         )
 
         with context.begin_transaction():
+            # Serialize concurrent migration runners against the same database
+            # (e.g. an old + new container overlapping during a Render redeploy).
+            # Without this, two `alembic upgrade head` runs race on the initial
+            # `CREATE TABLE alembic_version` and one dies with a UniqueViolation
+            # on pg_type ("alembic_version already exists"). A transaction-scoped
+            # advisory lock makes the second runner wait, then no-op. The lock is
+            # released automatically when this transaction commits. The constant
+            # is an arbitrary but fixed key shared by all runners.
+            connection.exec_driver_sql("SELECT pg_advisory_xact_lock(72380190)")
             context.run_migrations()
 
 
