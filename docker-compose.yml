@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: afid-hms-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: afid_hms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build: .
+    container_name: afid-hms-backend
+    environment:
+      DATABASE_URL: postgresql://admin:password@postgres:5432/afid_hms_db
+      SECRET_KEY: your-secret-key-change-in-production
+      DEBUG: "True"
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: python main.py
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: afid-hms-network

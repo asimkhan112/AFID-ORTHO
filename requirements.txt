@@ -1,0 +1,18 @@
+# AFID Orthodontic HMS — backend dependencies.
+# Versions verified working on Python 3.14 (the original pinned versions did not
+# build on 3.14). Lower bounds allow patch/minor updates.
+fastapi>=0.139.2
+uvicorn[standard]>=0.51.0
+sqlalchemy>=2.0.51
+psycopg2-binary>=2.9.12   # PostgreSQL driver (required)
+pydantic>=2.13.4
+pydantic-settings>=2.14.2
+python-jose[cryptography]>=3.5.0
+passlib>=1.7.4
+python-multipart>=0.0.32
+python-dotenv>=1.2.2
+alembic>=1.18.5
+pytz>=2026.2
+email-validator>=2.3.0
+cryptography>=49.0.0
+openpyxl>=3.1.5           # Excel (.xlsx) generation for exports
